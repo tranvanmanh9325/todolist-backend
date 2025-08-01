@@ -1,6 +1,3 @@
--- Xóa tránh dư thừa
-DROP TABLE IF EXISTS public.users;
-
 -- Tạo schema nếu chưa tồn tại
 CREATE SCHEMA IF NOT EXISTS todo_schema;
 
@@ -10,4 +7,14 @@ CREATE TABLE todo_schema.users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL
+);
+
+-- Tạo bảng otps trong todo_schema
+CREATE TABLE todo_schema.otps (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (email) REFERENCES todo_schema.users(email)
 );
