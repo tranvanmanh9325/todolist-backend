@@ -1,0 +1,272 @@
+2025-08-02T12:09:14.034+07:00  INFO 45360 --- [todo] [main] com.example.todo.TodoApplication         : Starting TodoApplication using Java 24.0.1 with PID 45360 (D:\GitHub\todolist-backend\target\classes started by Tran Van Manh in D:\GitHub\todolist-backend)
+2025-08-02T12:09:14.035+07:00 DEBUG 45360 --- [todo] [main] com.example.todo.TodoApplication         : Running with Spring Boot v3.5.4, Spring v6.2.9
+2025-08-02T12:09:14.036+07:00  INFO 45360 --- [todo] [main] com.example.todo.TodoApplication         : No active profile set, falling back to 1 default profile: "default"
+2025-08-02T12:09:14.669+07:00  INFO 45360 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-02T12:09:14.723+07:00  INFO 45360 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 43 ms. Found 2 JPA repository interfaces.
+2025-08-02T12:09:15.269+07:00  INFO 45360 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-08-02T12:09:15.283+07:00  INFO 45360 --- [todo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-08-02T12:09:15.283+07:00  INFO 45360 --- [todo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2025-08-02T12:09:15.332+07:00  INFO 45360 --- [todo] [main] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring embedded WebApplicationContext
+2025-08-02T12:09:15.332+07:00  INFO 45360 --- [todo] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1247 ms
+2025-08-02T12:09:15.461+07:00  INFO 45360 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-08-02T12:09:15.669+07:00  INFO 45360 --- [todo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6dce59e
+2025-08-02T12:09:15.671+07:00  INFO 45360 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-08-02T12:09:15.755+07:00  INFO 45360 --- [todo] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-02T12:09:15.801+07:00  INFO 45360 --- [todo] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2025-08-02T12:09:15.831+07:00  INFO 45360 --- [todo] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-08-02T12:09:16.102+07:00  INFO 45360 --- [todo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-02T12:09:16.151+07:00  WARN 45360 --- [todo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-08-02T12:09:16.163+07:00  INFO 45360 --- [todo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-08-02T12:09:16.793+07:00  INFO 45360 --- [todo] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-02T12:09:16.796+07:00  INFO 45360 --- [todo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:09:17.070+07:00  INFO 45360 --- [todo] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-08-02T12:09:17.937+07:00  INFO 45360 --- [todo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-08-02T12:09:18.358+07:00  INFO 45360 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/api'
+2025-08-02T12:09:18.370+07:00  INFO 45360 --- [todo] [main] com.example.todo.TodoApplication         : Started TodoApplication in 4.767 seconds (process running for 5.075)
+2025-08-02T12:09:18.385+07:00 DEBUG 45360 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Starting scheduled task to delete expired OTPs
+2025-08-02T12:09:18.385+07:00 DEBUG 45360 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleting OTPs with expires_at < 2025-08-02T05:09:18.385545900
+2025-08-02T12:09:18.443+07:00  INFO 45360 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleted 0 expired OTPs at 2025-08-02T05:09:18.385545900
+2025-08-02T12:09:38.110+07:00  INFO 45360 --- [todo] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-08-02T12:09:38.111+07:00  INFO 45360 --- [todo] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-08-02T12:09:38.113+07:00  INFO 45360 --- [todo] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2025-08-02T12:10:18.369+07:00 DEBUG 45360 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Starting scheduled task to delete expired OTPs
+2025-08-02T12:10:18.369+07:00 DEBUG 45360 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleting OTPs with expires_at < 2025-08-02T05:10:18.369604500
+2025-08-02T12:10:18.369+07:00  INFO 45360 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleted 0 expired OTPs at 2025-08-02T05:10:18.369604500
+2025-08-02T12:10:28.474+07:00  INFO 45360 --- [todo] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-08-02T12:10:28.480+07:00  INFO 45360 --- [todo] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-08-02T12:10:28.483+07:00  INFO 45360 --- [todo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:10:28.485+07:00  INFO 45360 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-08-02T12:10:28.489+07:00  INFO 45360 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-08-02T12:11:00.864+07:00  INFO 44748 --- [todo] [main] com.example.todo.TodoApplication         : Starting TodoApplication using Java 24.0.1 with PID 44748 (D:\GitHub\todolist-backend\target\classes started by Tran Van Manh in D:\GitHub\todolist-backend)
+2025-08-02T12:11:00.865+07:00 DEBUG 44748 --- [todo] [main] com.example.todo.TodoApplication         : Running with Spring Boot v3.5.4, Spring v6.2.9
+2025-08-02T12:11:00.866+07:00  INFO 44748 --- [todo] [main] com.example.todo.TodoApplication         : No active profile set, falling back to 1 default profile: "default"
+2025-08-02T12:11:01.462+07:00  INFO 44748 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-02T12:11:01.518+07:00  INFO 44748 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 46 ms. Found 2 JPA repository interfaces.
+2025-08-02T12:11:02.065+07:00  INFO 44748 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-08-02T12:11:02.078+07:00  INFO 44748 --- [todo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-08-02T12:11:02.079+07:00  INFO 44748 --- [todo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2025-08-02T12:11:02.125+07:00  INFO 44748 --- [todo] [main] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring embedded WebApplicationContext
+2025-08-02T12:11:02.126+07:00  INFO 44748 --- [todo] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1219 ms
+2025-08-02T12:11:02.241+07:00  INFO 44748 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-08-02T12:11:02.474+07:00  INFO 44748 --- [todo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@18b6d3c1
+2025-08-02T12:11:02.475+07:00  INFO 44748 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-08-02T12:11:02.571+07:00  INFO 44748 --- [todo] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-02T12:11:02.620+07:00  INFO 44748 --- [todo] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2025-08-02T12:11:02.667+07:00  INFO 44748 --- [todo] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-08-02T12:11:02.935+07:00  INFO 44748 --- [todo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-02T12:11:02.986+07:00  WARN 44748 --- [todo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-08-02T12:11:02.998+07:00  INFO 44748 --- [todo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-08-02T12:11:03.636+07:00  INFO 44748 --- [todo] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-02T12:11:03.639+07:00  INFO 44748 --- [todo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:11:03.924+07:00  INFO 44748 --- [todo] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-08-02T12:11:04.774+07:00  INFO 44748 --- [todo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-08-02T12:11:05.110+07:00  INFO 44748 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/api'
+2025-08-02T12:11:05.119+07:00  INFO 44748 --- [todo] [main] com.example.todo.TodoApplication         : Started TodoApplication in 4.673 seconds (process running for 4.982)
+2025-08-02T12:11:05.128+07:00 DEBUG 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Starting scheduled task to delete expired OTPs
+2025-08-02T12:11:05.129+07:00 DEBUG 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleting OTPs with expires_at < 2025-08-02T05:11:05.129921100
+2025-08-02T12:11:05.172+07:00  INFO 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleted 0 expired OTPs at 2025-08-02T05:11:05.129921100
+2025-08-02T12:11:33.539+07:00  INFO 44748 --- [todo] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-08-02T12:11:33.540+07:00  INFO 44748 --- [todo] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-08-02T12:11:33.541+07:00  INFO 44748 --- [todo] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-08-02T12:12:05.120+07:00 DEBUG 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Starting scheduled task to delete expired OTPs
+2025-08-02T12:12:05.121+07:00 DEBUG 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleting OTPs with expires_at < 2025-08-02T05:12:05.121345900
+2025-08-02T12:12:05.123+07:00  INFO 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleted 0 expired OTPs at 2025-08-02T05:12:05.121345900
+2025-08-02T12:13:05.121+07:00 DEBUG 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Starting scheduled task to delete expired OTPs
+2025-08-02T12:13:05.122+07:00 DEBUG 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleting OTPs with expires_at < 2025-08-02T05:13:05.122462400
+2025-08-02T12:13:05.126+07:00  INFO 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleted 0 expired OTPs at 2025-08-02T05:13:05.122462400
+2025-08-02T12:14:05.120+07:00 DEBUG 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Starting scheduled task to delete expired OTPs
+2025-08-02T12:14:05.121+07:00 DEBUG 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleting OTPs with expires_at < 2025-08-02T05:14:05.121964300
+2025-08-02T12:14:05.124+07:00  INFO 44748 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleted 0 expired OTPs at 2025-08-02T05:14:05.121964300
+2025-08-02T12:14:08.936+07:00  INFO 44748 --- [todo] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-08-02T12:14:08.943+07:00  INFO 44748 --- [todo] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-08-02T12:14:08.948+07:00  INFO 44748 --- [todo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:14:08.951+07:00  INFO 44748 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-08-02T12:14:08.953+07:00  INFO 44748 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-08-02T12:15:26.098+07:00  INFO 41360 --- [todo] [main] com.example.todo.TodoApplication         : Starting TodoApplication using Java 24.0.1 with PID 41360 (D:\GitHub\todolist-backend\target\classes started by Tran Van Manh in D:\GitHub\todolist-backend)
+2025-08-02T12:15:26.100+07:00 DEBUG 41360 --- [todo] [main] com.example.todo.TodoApplication         : Running with Spring Boot v3.5.4, Spring v6.2.9
+2025-08-02T12:15:26.101+07:00  INFO 41360 --- [todo] [main] com.example.todo.TodoApplication         : No active profile set, falling back to 1 default profile: "default"
+2025-08-02T12:15:26.694+07:00  INFO 41360 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-02T12:15:26.748+07:00  INFO 41360 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 45 ms. Found 2 JPA repository interfaces.
+2025-08-02T12:15:27.274+07:00  INFO 41360 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-08-02T12:15:27.288+07:00  INFO 41360 --- [todo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-08-02T12:15:27.288+07:00  INFO 41360 --- [todo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2025-08-02T12:15:27.336+07:00  INFO 41360 --- [todo] [main] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring embedded WebApplicationContext
+2025-08-02T12:15:27.337+07:00  INFO 41360 --- [todo] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1199 ms
+2025-08-02T12:15:27.451+07:00  INFO 41360 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-08-02T12:15:27.666+07:00  INFO 41360 --- [todo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@d13960e
+2025-08-02T12:15:27.668+07:00  INFO 41360 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-08-02T12:15:27.751+07:00  INFO 41360 --- [todo] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-02T12:15:27.792+07:00  INFO 41360 --- [todo] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2025-08-02T12:15:27.824+07:00  INFO 41360 --- [todo] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-08-02T12:15:28.082+07:00  INFO 41360 --- [todo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-02T12:15:28.132+07:00  WARN 41360 --- [todo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-08-02T12:15:28.144+07:00  INFO 41360 --- [todo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-08-02T12:15:28.879+07:00  INFO 41360 --- [todo] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-02T12:15:28.882+07:00  INFO 41360 --- [todo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:15:29.169+07:00  INFO 41360 --- [todo] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-08-02T12:15:30.011+07:00  INFO 41360 --- [todo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-08-02T12:15:30.392+07:00  INFO 41360 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/api'
+2025-08-02T12:15:30.406+07:00  INFO 41360 --- [todo] [main] com.example.todo.TodoApplication         : Started TodoApplication in 4.737 seconds (process running for 5.048)
+2025-08-02T12:15:30.424+07:00 DEBUG 41360 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Starting scheduled task to delete expired OTPs
+2025-08-02T12:15:30.424+07:00 DEBUG 41360 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Current time: 2025-08-02T12:15:30.424113700
+2025-08-02T12:15:30.481+07:00  INFO 41360 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleted 0 expired OTPs at 2025-08-02T12:15:30.424113700
+2025-08-02T12:15:38.113+07:00  INFO 41360 --- [todo] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-08-02T12:15:38.114+07:00  INFO 41360 --- [todo] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-08-02T12:15:38.115+07:00  INFO 41360 --- [todo] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-08-02T12:16:18.815+07:00  INFO 41360 --- [todo] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-08-02T12:16:18.825+07:00  INFO 41360 --- [todo] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-08-02T12:16:18.829+07:00  INFO 41360 --- [todo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:16:18.832+07:00  INFO 41360 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-08-02T12:16:18.834+07:00  INFO 41360 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-08-02T12:16:51.005+07:00  INFO 43808 --- [todo] [main] com.example.todo.TodoApplication         : Starting TodoApplication using Java 24.0.1 with PID 43808 (D:\GitHub\todolist-backend\target\classes started by Tran Van Manh in D:\GitHub\todolist-backend)
+2025-08-02T12:16:51.006+07:00 DEBUG 43808 --- [todo] [main] com.example.todo.TodoApplication         : Running with Spring Boot v3.5.4, Spring v6.2.9
+2025-08-02T12:16:51.007+07:00  INFO 43808 --- [todo] [main] com.example.todo.TodoApplication         : No active profile set, falling back to 1 default profile: "default"
+2025-08-02T12:16:51.647+07:00  INFO 43808 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-02T12:16:51.709+07:00  INFO 43808 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 53 ms. Found 2 JPA repository interfaces.
+2025-08-02T12:16:52.226+07:00  INFO 43808 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-08-02T12:16:52.238+07:00  INFO 43808 --- [todo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-08-02T12:16:52.238+07:00  INFO 43808 --- [todo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2025-08-02T12:16:52.286+07:00  INFO 43808 --- [todo] [main] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring embedded WebApplicationContext
+2025-08-02T12:16:52.286+07:00  INFO 43808 --- [todo] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1239 ms
+2025-08-02T12:16:52.416+07:00  INFO 43808 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-08-02T12:16:52.641+07:00  INFO 43808 --- [todo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3fe512d2
+2025-08-02T12:16:52.643+07:00  INFO 43808 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-08-02T12:16:52.753+07:00  INFO 43808 --- [todo] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-02T12:16:52.821+07:00  INFO 43808 --- [todo] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2025-08-02T12:16:52.852+07:00  INFO 43808 --- [todo] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-08-02T12:16:53.108+07:00  INFO 43808 --- [todo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-02T12:16:53.162+07:00  WARN 43808 --- [todo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-08-02T12:16:53.173+07:00  INFO 43808 --- [todo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-08-02T12:16:53.813+07:00  INFO 43808 --- [todo] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-02T12:16:53.816+07:00  INFO 43808 --- [todo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:16:54.080+07:00  INFO 43808 --- [todo] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-08-02T12:16:54.902+07:00  INFO 43808 --- [todo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-08-02T12:16:55.278+07:00  INFO 43808 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/api'
+2025-08-02T12:16:55.288+07:00  INFO 43808 --- [todo] [main] com.example.todo.TodoApplication         : Started TodoApplication in 4.715 seconds (process running for 5.01)
+2025-08-02T12:16:55.346+07:00  INFO 43808 --- [todo] [scheduling-1] com.example.todo.service.OtpService      : Deleted 0 expired OTPs at 2025-08-02T12:16:55.301435900
+2025-08-02T12:17:04.801+07:00  INFO 43808 --- [todo] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-08-02T12:17:04.802+07:00  INFO 43808 --- [todo] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-08-02T12:17:04.806+07:00  INFO 43808 --- [todo] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+2025-08-02T12:17:30.187+07:00  INFO 43808 --- [todo] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-08-02T12:17:30.193+07:00  INFO 43808 --- [todo] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-08-02T12:17:30.197+07:00  INFO 43808 --- [todo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:17:30.198+07:00  INFO 43808 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-08-02T12:17:30.200+07:00  INFO 43808 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-08-02T12:19:12.158+07:00  INFO 33012 --- [todo] [main] com.example.todo.TodoApplication         : Starting TodoApplication using Java 24.0.1 with PID 33012 (D:\GitHub\todolist-backend\target\classes started by Tran Van Manh in D:\GitHub\todolist-backend)
+2025-08-02T12:19:12.159+07:00 DEBUG 33012 --- [todo] [main] com.example.todo.TodoApplication         : Running with Spring Boot v3.5.4, Spring v6.2.9
+2025-08-02T12:19:12.160+07:00  INFO 33012 --- [todo] [main] com.example.todo.TodoApplication         : No active profile set, falling back to 1 default profile: "default"
+2025-08-02T12:19:12.776+07:00  INFO 33012 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-02T12:19:12.834+07:00  INFO 33012 --- [todo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 47 ms. Found 2 JPA repository interfaces.
+2025-08-02T12:19:13.383+07:00  INFO 33012 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-08-02T12:19:13.398+07:00  INFO 33012 --- [todo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-08-02T12:19:13.398+07:00  INFO 33012 --- [todo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2025-08-02T12:19:13.453+07:00  INFO 33012 --- [todo] [main] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring embedded WebApplicationContext
+2025-08-02T12:19:13.454+07:00  INFO 33012 --- [todo] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1254 ms
+2025-08-02T12:19:13.577+07:00  INFO 33012 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-08-02T12:19:13.813+07:00  INFO 33012 --- [todo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3b24087d
+2025-08-02T12:19:13.814+07:00  INFO 33012 --- [todo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-08-02T12:19:13.900+07:00  INFO 33012 --- [todo] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-02T12:19:13.950+07:00  INFO 33012 --- [todo] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2025-08-02T12:19:13.991+07:00  INFO 33012 --- [todo] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-08-02T12:19:14.284+07:00  INFO 33012 --- [todo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-02T12:19:14.332+07:00  WARN 33012 --- [todo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-08-02T12:19:14.346+07:00  INFO 33012 --- [todo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-08-02T12:19:15.017+07:00  INFO 33012 --- [todo] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-02T12:19:15.020+07:00  INFO 33012 --- [todo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:19:15.294+07:00  INFO 33012 --- [todo] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-08-02T12:19:16.208+07:00  INFO 33012 --- [todo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-08-02T12:19:16.583+07:00  INFO 33012 --- [todo] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/api'
+2025-08-02T12:19:16.595+07:00  INFO 33012 --- [todo] [main] com.example.todo.TodoApplication         : Started TodoApplication in 4.86 seconds (process running for 5.158)
+2025-08-02T12:19:16.661+07:00 ERROR 33012 --- [todo] [scheduling-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task
+
+org.springframework.dao.InvalidDataAccessApiUsageException: Executing an update/delete query
+	at org.springframework.orm.jpa.EntityManagerFactoryUtils.convertJpaAccessExceptionIfPossible(EntityManagerFactoryUtils.java:400) ~[spring-orm-6.2.9.jar:6.2.9]
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:246) ~[spring-orm-6.2.9.jar:6.2.9]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.translateExceptionIfPossible(AbstractEntityManagerFactoryBean.java:560) ~[spring-orm-6.2.9.jar:6.2.9]
+	at org.springframework.dao.support.ChainedPersistenceExceptionTranslator.translateExceptionIfPossible(ChainedPersistenceExceptionTranslator.java:61) ~[spring-tx-6.2.9.jar:6.2.9]
+	at org.springframework.dao.support.DataAccessUtils.translateIfNecessary(DataAccessUtils.java:343) ~[spring-tx-6.2.9.jar:6.2.9]
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:160) ~[spring-tx-6.2.9.jar:6.2.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.9.jar:6.2.9]
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:136) ~[spring-data-jpa-3.5.2.jar:3.5.2]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.9.jar:6.2.9]
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223) ~[spring-aop-6.2.9.jar:6.2.9]
+	at jdk.proxy2/jdk.proxy2.$Proxy129.deleteByExpiresAtBefore(Unknown Source) ~[na:na]
+	at com.example.todo.service.OtpService.deleteExpiredOtps(OtpService.java:24) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:130) ~[spring-context-6.2.9.jar:6.2.9]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$2(ScheduledMethodRunnable.java:124) ~[spring-context-6.2.9.jar:6.2.9]
+	at io.micrometer.observation.Observation.observe(Observation.java:498) ~[micrometer-observation-1.15.2.jar:1.15.2]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:124) ~[spring-context-6.2.9.jar:6.2.9]
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:85) ~[spring-context-6.2.9.jar:6.2.9]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-6.2.9.jar:6.2.9]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:545) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:369) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:310) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1095) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:619) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1447) ~[na:na]
+Caused by: jakarta.persistence.TransactionRequiredException: Executing an update/delete query
+	at org.hibernate.internal.AbstractSharedSessionContract.checkTransactionNeededForUpdateOperation(AbstractSharedSessionContract.java:560) ~[hibernate-core-6.6.22.Final.jar:6.6.22.Final]
+	at org.hibernate.query.sqm.internal.QuerySqmImpl.executeUpdate(QuerySqmImpl.java:489) ~[hibernate-core-6.6.22.Final.jar:6.6.22.Final]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$DeferredQueryInvocationHandler.invoke(SharedEntityManagerCreator.java:419) ~[spring-orm-6.2.9.jar:6.2.9]
+	at jdk.proxy2/jdk.proxy2.$Proxy136.executeUpdate(Unknown Source) ~[na:na]
+	at org.springframework.data.jpa.repository.query.JpaQueryExecution$ModifyingExecution.doExecute(JpaQueryExecution.java:267) ~[spring-data-jpa-3.5.2.jar:3.5.2]
+	at org.springframework.data.jpa.repository.query.JpaQueryExecution.execute(JpaQueryExecution.java:93) ~[spring-data-jpa-3.5.2.jar:3.5.2]
+	at org.springframework.data.jpa.repository.query.AbstractJpaQuery.doExecute(AbstractJpaQuery.java:160) ~[spring-data-jpa-3.5.2.jar:3.5.2]
+	at org.springframework.data.jpa.repository.query.AbstractJpaQuery.execute(AbstractJpaQuery.java:148) ~[spring-data-jpa-3.5.2.jar:3.5.2]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:170) ~[spring-data-commons-3.5.2.jar:3.5.2]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158) ~[spring-data-commons-3.5.2.jar:3.5.2]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:170) ~[spring-data-commons-3.5.2.jar:3.5.2]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:149) ~[spring-data-commons-3.5.2.jar:3.5.2]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.9.jar:6.2.9]
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:69) ~[spring-data-commons-3.5.2.jar:3.5.2]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.9.jar:6.2.9]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:380) ~[spring-tx-6.2.9.jar:6.2.9]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.2.9.jar:6.2.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.9.jar:6.2.9]
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:138) ~[spring-tx-6.2.9.jar:6.2.9]
+	... 20 common frames omitted
+
+2025-08-02T12:22:05.616+07:00  INFO 33012 --- [todo] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-08-02T12:22:05.641+07:00  INFO 33012 --- [todo] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-08-02T12:22:05.647+07:00  INFO 33012 --- [todo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-02T12:22:05.649+07:00  INFO 33012 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-08-02T12:22:05.651+07:00  INFO 33012 --- [todo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

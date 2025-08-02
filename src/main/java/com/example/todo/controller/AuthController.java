@@ -105,7 +105,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    @Transactional // Thêm annotation để đảm bảo giao dịch
+    @Transactional
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
         logger.info("Reset password request for email: {}", request.getEmail());
 
@@ -115,13 +115,11 @@ public class AuthController {
                     .body(new ErrorResponse("Email not found"));
         }
 
-        // Tạo mã OTP 6 chữ số
         String otpCode = String.format("%06d", new Random().nextInt(999999));
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiresAt = now.plusMinutes(5);
 
-        // Lưu OTP vào database
-        otpRepository.deleteByEmail(request.getEmail()); // Xóa OTP cũ nếu có
+        otpRepository.deleteByEmail(request.getEmail());
         Otp otp = new Otp();
         otp.setEmail(request.getEmail());
         otp.setOtpCode(otpCode);
@@ -129,7 +127,6 @@ public class AuthController {
         otp.setExpiresAt(expiresAt);
         otpRepository.save(otp);
 
-        // Gửi email chứa OTP
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(request.getEmail());
@@ -160,11 +157,13 @@ public class AuthController {
         Otp otp = otpOptional.get();
         if (LocalDateTime.now().isAfter(otp.getExpiresAt())) {
             logger.warn("Verify OTP failed: OTP expired for email: {}", request.getEmail());
+            otpRepository.delete(otp); // ✅ Xóa OTP hết hạn
             return ResponseEntity.badRequest()
                     .body(new ErrorResponse("OTP has expired"));
         }
 
         logger.info("OTP verified for email: {}", request.getEmail());
+        otpRepository.delete(otp); // ✅ Xóa OTP đã dùng thành công
         return ResponseEntity.ok("OTP verified successfully");
     }
 
@@ -195,7 +194,7 @@ public class AuthController {
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
-        otpRepository.deleteByEmail(request.getEmail()); // Xóa OTP sau khi đổi mật khẩu
+        otpRepository.deleteByEmail(request.getEmail());
 
         logger.info("Password changed successfully for email: {}", request.getEmail());
         return ResponseEntity.ok("Password changed successfully");
@@ -206,7 +205,6 @@ public class AuthController {
     @Getter
     public static class ResetPasswordRequest {
         private String email;
-
     }
 
     @Setter
@@ -214,7 +212,6 @@ public class AuthController {
     public static class VerifyOtpRequest {
         private String email;
         private String otpCode;
-
     }
 
     @Setter
@@ -223,6 +220,5 @@ public class AuthController {
         private String email;
         private String password;
         private String confirm;
-
     }
 }
