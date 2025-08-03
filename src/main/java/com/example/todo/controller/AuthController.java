@@ -8,6 +8,8 @@ import com.example.todo.entity.Otp;
 import com.example.todo.entity.User;
 import com.example.todo.repository.OtpRepository;
 import com.example.todo.repository.UserRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -29,6 +31,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
@@ -47,6 +55,9 @@ public class AuthController {
     @Value("${google.client-id}")
     private String googleClientId;
 
+    @Value("${google.client-secret}")
+    private String googleClientSecret;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -62,12 +73,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         logger.info("Login attempt for email: {}", request.getEmail());
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElse(null);
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             logger.warn("Failed login attempt for email: {}", request.getEmail());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("Invalid email or password"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("Invalid email or password"));
         }
 
         String token = Jwts.builder()
@@ -86,21 +95,15 @@ public class AuthController {
         logger.info("Signup attempt for email: {}", request.getEmail());
 
         if (!request.getPassword().equals(request.getConfirm())) {
-            logger.warn("Signup failed: Passwords do not match for email: {}", request.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Passwords do not match"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("Passwords do not match"));
         }
 
         if (!PASSWORD_PATTERN.matcher(request.getPassword()).matches()) {
-            logger.warn("Signup failed: Weak password for email: {}", request.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one digit"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("Password must be strong"));
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            logger.warn("Signup failed: Email already exists: {}", request.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Email already exists"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("Email already exists"));
         }
 
         User user = new User();
@@ -109,65 +112,100 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
-        logger.info("Successful signup for email: {}", request.getEmail());
         return ResponseEntity.ok("Signup successful");
     }
 
     @PostMapping("/google-login")
-    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
-        logger.info("Google login attempt for idToken");
-
+    public ResponseEntity<?> handleGoogleLogin(@RequestBody CodeRequest codeRequest) {
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance())
+            logger.info("Received Google OAuth code from frontend");
+
+            String code = codeRequest.getCode();
+            if (code == null || code.isEmpty()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("Missing code"));
+            }
+
+            String tokenEndpoint = "https://oauth2.googleapis.com/token";
+            String redirectUri = "http://localhost:5173/google-callback";
+
+            String body = "code=" + URLEncoder.encode(code, StandardCharsets.UTF_8)
+                    + "&client_id=" + URLEncoder.encode(googleClientId, StandardCharsets.UTF_8)
+                    + "&client_secret=" + URLEncoder.encode(googleClientSecret, StandardCharsets.UTF_8)
+                    + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)
+                    + "&grant_type=authorization_code";
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest tokenRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(tokenEndpoint))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+
+            HttpResponse<String> tokenResponse = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(tokenResponse.body());
+
+            if (!jsonNode.has("id_token")) {
+                logger.error("Failed to retrieve ID token from Google: {}", jsonNode);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("Failed to retrieve Google ID token"));
+            }
+
+            String idToken = jsonNode.get("id_token").asText();
+
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(), JacksonFactory.getDefaultInstance())
                     .setAudience(Collections.singletonList(googleClientId))
                     .build();
 
-            GoogleIdToken idToken = verifier.verify(request.getIdToken());
-            if (idToken == null) {
-                logger.warn("Google login failed: Invalid ID token");
-                return ResponseEntity.badRequest()
-                        .body(new ErrorResponse("Invalid Google ID token"));
+            GoogleIdToken googleIdToken = verifier.verify(idToken);
+            if (googleIdToken == null) {
+                logger.warn("Invalid Google ID token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("Invalid Google token"));
             }
 
-            GoogleIdToken.Payload payload = idToken.getPayload();
+            GoogleIdToken.Payload payload = googleIdToken.getPayload();
             String email = payload.getEmail();
             String name = (String) payload.get("name");
 
             User user = userRepository.findByEmail(email).orElse(null);
+
             if (user == null) {
-                user = new User();
-                user.setEmail(email);
-                user.setName(name);
-                user.setPassword(passwordEncoder.encode("google-user-" + System.currentTimeMillis())); // Fake password
-                userRepository.save(user);
-                logger.info("Created new user for Google login: {}", email);
+                try {
+                    user = new User();
+                    user.setEmail(email);
+                    user.setName(name);
+                    user.setPassword(passwordEncoder.encode("google-user-" + System.currentTimeMillis()));
+                    user = userRepository.save(user);
+                    logger.info("Created new user via Google: {}", email);
+                } catch (Exception e) {
+                    logger.warn("Duplicate insert? Retrying load: {}", e.getMessage());
+                    user = userRepository.findByEmail(email).orElseThrow();
+                }
             }
 
-            String token = Jwts.builder()
+            String jwt = Jwts.builder()
                     .subject(user.getEmail())
                     .issuedAt(new Date())
                     .expiration(new Date(System.currentTimeMillis() + 86400000))
                     .signWith(Keys.hmacShaKeyFor(JWT_SECRET.getBytes()))
                     .compact();
 
-            logger.info("Successful Google login for email: {}", email);
-            return ResponseEntity.ok(new LoginResponse(user.getId(), user.getName(), user.getEmail(), token));
+            logger.info("Generated JWT for Google login user: {}", email);
+            return ResponseEntity.ok(new LoginResponse(user.getId(), user.getName(), user.getEmail(), jwt));
+
         } catch (Exception e) {
-            logger.error("Google login failed: {}", e.getMessage());
+            logger.error("Error during Google login: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Google login failed: " + e.getMessage()));
+                    .body(new ErrorResponse("Google login failed"));
         }
     }
 
     @PostMapping("/reset-password")
     @Transactional
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-        logger.info("Reset password request for email: {}", request.getEmail());
-
         if (!userRepository.existsByEmail(request.getEmail())) {
-            logger.warn("Reset password failed: Email not found: {}", request.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Email not found"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("Email not found"));
         }
 
         String otpCode = String.format("%06d", new Random().nextInt(999999));
@@ -188,11 +226,9 @@ public class AuthController {
             message.setSubject("Your OTP for Password Reset");
             message.setText("Your OTP is: " + otpCode + "\nThis OTP is valid for 5 minutes.");
             mailSender.send(message);
-            logger.info("OTP sent successfully to email: {}", request.getEmail());
         } catch (Exception e) {
-            logger.error("Failed to send OTP to email: {}. Error: {}", request.getEmail(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Failed to send OTP. Please try again."));
+                    .body(new ErrorResponse("Failed to send OTP"));
         }
 
         return ResponseEntity.ok("OTP sent to your email");
@@ -200,24 +236,17 @@ public class AuthController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
-        logger.info("Verify OTP attempt for email: {}", request.getEmail());
-
         Optional<Otp> otpOptional = otpRepository.findByEmailAndOtpCode(request.getEmail(), request.getOtpCode());
         if (otpOptional.isEmpty()) {
-            logger.warn("Verify OTP failed: Invalid OTP for email: {}", request.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Invalid OTP"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("Invalid OTP"));
         }
 
         Otp otp = otpOptional.get();
         if (LocalDateTime.now().isAfter(otp.getExpiresAt())) {
-            logger.warn("Verify OTP failed: OTP expired for email: {}", request.getEmail());
             otpRepository.delete(otp);
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("OTP has expired"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("OTP has expired"));
         }
 
-        logger.info("OTP verified for email: {}", request.getEmail());
         otpRepository.delete(otp);
         return ResponseEntity.ok("OTP verified successfully");
     }
@@ -225,61 +254,46 @@ public class AuthController {
     @PostMapping("/change-password")
     @Transactional
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
-        logger.info("Change password attempt for email: {}", request.getEmail());
-
         if (!request.getPassword().equals(request.getConfirm())) {
-            logger.warn("Change password failed: Passwords do not match for email: {}", request.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Passwords do not match"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("Passwords do not match"));
         }
 
         if (!PASSWORD_PATTERN.matcher(request.getPassword()).matches()) {
-            logger.warn("Change password failed: Weak password for email: {}", request.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one digit"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("Password must be strong"));
         }
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElse(null);
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
         if (user == null) {
-            logger.warn("Change password failed: Email not found: {}", request.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Email not found"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("Email not found"));
         }
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
         otpRepository.deleteByEmail(request.getEmail());
 
-        logger.info("Password changed successfully for email: {}", request.getEmail());
         return ResponseEntity.ok("Password changed successfully");
     }
 
-    // Inner classes for request DTOs
-    @Setter
-    @Getter
+    @Getter @Setter
+    public static class CodeRequest {
+        private String code;
+    }
+
+    @Getter @Setter
     public static class ResetPasswordRequest {
         private String email;
     }
 
-    @Setter
-    @Getter
+    @Getter @Setter
     public static class VerifyOtpRequest {
         private String email;
         private String otpCode;
     }
 
-    @Setter
-    @Getter
+    @Getter @Setter
     public static class ChangePasswordRequest {
         private String email;
         private String password;
         private String confirm;
-    }
-
-    @Setter
-    @Getter
-    public static class GoogleLoginRequest {
-        private String idToken;
     }
 }
