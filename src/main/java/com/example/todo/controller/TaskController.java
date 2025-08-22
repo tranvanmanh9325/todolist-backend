@@ -35,8 +35,10 @@ public class TaskController {
                     .body("Task title is required.");
         }
 
-        task.setCompleted(false); // Luôn tạo mới với trạng thái chưa hoàn thành
+        task.setCompleted(false); // luôn tạo mới ở trạng thái chưa hoàn thành
         task.setCompletedAt(null);
+
+        // reminder đã được map tự động từ JSON vào task
         Task savedTask = taskRepository.save(task);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTask);
     }
@@ -53,6 +55,11 @@ public class TaskController {
             }
             if (updated.getProject() != null) {
                 task.setProject(updated.getProject());
+            }
+
+            // Cập nhật reminder nếu có
+            if (updated.getReminder() != null) {
+                task.setReminder(updated.getReminder());
             }
 
             task.setCompleted(updated.isCompleted());
