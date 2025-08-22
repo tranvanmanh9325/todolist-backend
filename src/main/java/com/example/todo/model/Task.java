@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @Entity
-@Table(name = "tasks", schema = "todo_schema") // Chỉ định schema
+@Table(name = "tasks", schema = "todo_schema") // chỉ định schema
 public class Task {
 
     @Id
@@ -22,27 +22,27 @@ public class Task {
 
     private boolean completed;
 
-    private String note;
+    @Column(name = "description")
+    private String description;   // thay cho note
 
-    private String project;
+    @Column(name = "type")
+    private String type;          // thay cho project
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    // Thêm cột reminder
-    // lưu số phút trước sự kiện (0, 30, 60, 120...)
     @Column(name = "reminder")
-    private Integer reminder;
+    private Integer reminder;     // số phút trước sự kiện (0, 30, 60, 120...)
 
     // Constructor mặc định bắt buộc cho JPA
     public Task() {}
 
     // Constructor có tham số
-    public Task(String title, boolean completed, String note, String project, Integer reminder) {
+    public Task(String title, boolean completed, String description, String type, Integer reminder) {
         this.title = title;
         this.completed = completed;
-        this.note = note;
-        this.project = project;
+        this.description = description;
+        this.type = type;
         this.reminder = reminder;
     }
 }

@@ -4,10 +4,10 @@ CREATE SCHEMA IF NOT EXISTS todo_schema;
 -- Tạo bảng trong schema
 CREATE TABLE IF NOT EXISTS todo_schema.tasks (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
     completed BOOLEAN DEFAULT FALSE,
-    note TEXT,
-    project VARCHAR(255),
-    completed_at TIMESTAMP,
-    reminder INTEGER  -- Thêm cột reminder (số phút trước event)
+    title VARCHAR(255) NOT NULL,
+    description TEXT,          -- thay cho note
+    reminder INTEGER,          -- số phút trước sự kiện
+    type VARCHAR(255),         -- thay cho project
+    completed_at TIMESTAMP
 );

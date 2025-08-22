@@ -38,7 +38,7 @@ public class TaskController {
         task.setCompleted(false); // luôn tạo mới ở trạng thái chưa hoàn thành
         task.setCompletedAt(null);
 
-        // reminder đã được map tự động từ JSON vào task
+        // reminder, description, type được map tự động từ JSON vào Task
         Task savedTask = taskRepository.save(task);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTask);
     }
@@ -50,11 +50,11 @@ public class TaskController {
             if (updated.getTitle() != null) {
                 task.setTitle(updated.getTitle());
             }
-            if (updated.getNote() != null) {
-                task.setNote(updated.getNote());
+            if (updated.getDescription() != null) {
+                task.setDescription(updated.getDescription());
             }
-            if (updated.getProject() != null) {
-                task.setProject(updated.getProject());
+            if (updated.getType() != null) {
+                task.setType(updated.getType());
             }
 
             // Cập nhật reminder nếu có
