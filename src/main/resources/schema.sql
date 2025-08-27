@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS todo_schema.tasks (
     completed BOOLEAN DEFAULT FALSE,
     title VARCHAR(255) NOT NULL,
     description TEXT,          -- thay cho note
-    reminder INTEGER,          -- số phút trước sự kiện
     type VARCHAR(255),         -- thay cho project
+    priority INTEGER,          -- mức ưu tiên (1=High, 2=Medium, 3=Low, 4=None)
+    reminder INTEGER,          -- số phút trước sự kiện
     completed_at TIMESTAMP
 );
