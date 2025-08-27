@@ -38,7 +38,9 @@ public class TaskController {
         task.setCompleted(false); // luôn tạo mới ở trạng thái chưa hoàn thành
         task.setCompletedAt(null);
 
-        // description, type, priority, reminder được map tự động từ JSON vào Task
+        // ✅ Các field description, type, dueDate, time, duration, repeat, priority, reminder
+        // sẽ được Spring map tự động từ JSON vào Task
+
         Task savedTask = taskRepository.save(task);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTask);
     }
@@ -55,6 +57,18 @@ public class TaskController {
             }
             if (updated.getType() != null) {
                 task.setType(updated.getType());
+            }
+            if (updated.getDueDate() != null) {
+                task.setDueDate(updated.getDueDate());
+            }
+            if (updated.getTime() != null) {
+                task.setTime(updated.getTime());
+            }
+            if (updated.getDuration() != null) {
+                task.setDuration(updated.getDuration());
+            }
+            if (updated.getRepeat() != null) {
+                task.setRepeat(updated.getRepeat());
             }
 
             // ✅ luôn cập nhật priority & reminder (chấp nhận null để clear)

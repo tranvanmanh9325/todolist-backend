@@ -28,11 +28,24 @@ public class Task {
     @Column(name = "type")
     private String type;          // thay cho project
 
+    // ✅ Thêm các cột mới cho Date (trước priority)
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;   // ngày đến hạn (có thể gồm cả giờ)
+
+    @Column(name = "time")
+    private LocalDateTime time;      // giờ cụ thể (nếu tách riêng)
+
+    @Column(name = "duration")
+    private String duration;         // thời lượng ("30m", "1h", "none")
+
+    @Column(name = "repeat")
+    private String repeat;           // lặp lại ("daily", "weekly", "monthly", "none")
+
     @Column(name = "priority")
-    private Integer priority;     // mức ưu tiên (1=High, 2=Medium, 3=Low, 4=None)
+    private Integer priority;        // mức ưu tiên (1=High, 2=Medium, 3=Low, 4=None)
 
     @Column(name = "reminder")
-    private Integer reminder;     // số phút trước sự kiện (0, 30, 60, 120...)
+    private Integer reminder;        // số phút trước sự kiện (0, 30, 60, 120...)
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
@@ -40,13 +53,18 @@ public class Task {
     // Constructor mặc định bắt buộc cho JPA
     public Task() {}
 
-    // Constructor có tham số
+    // Constructor có tham số (đầy đủ các field mới)
     public Task(String title, boolean completed, String description, String type,
+                LocalDateTime dueDate, LocalDateTime time, String duration, String repeat,
                 Integer priority, Integer reminder) {
         this.title = title;
         this.completed = completed;
         this.description = description;
         this.type = type;
+        this.dueDate = dueDate;
+        this.time = time;
+        this.duration = duration;
+        this.repeat = repeat;
         this.priority = priority;
         this.reminder = reminder;
     }
