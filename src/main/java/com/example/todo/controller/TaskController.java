@@ -56,12 +56,10 @@ public class TaskController {
             if (updated.getType() != null) {
                 task.setType(updated.getType());
             }
-            if (updated.getPriority() != null) {
-                task.setPriority(updated.getPriority());
-            }
-            if (updated.getReminder() != null) {
-                task.setReminder(updated.getReminder());
-            }
+
+            // ✅ luôn cập nhật priority & reminder (chấp nhận null để clear)
+            task.setPriority(updated.getPriority());
+            task.setReminder(updated.getReminder());
 
             task.setCompleted(updated.isCompleted());
             task.setCompletedAt(updated.isCompleted() ? LocalDateTime.now() : null);
