@@ -47,12 +47,17 @@ import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/auth")
+// cho dev environment: frontend dev server mặc định là http://localhost:5173
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
-    private static final String JWT_SECRET = "your-secure-secret-key-32-chars-long-min";
+
+    // Prefer lấy JWT secret từ cấu hình / .env; fallback vào chuỗi ngắn if absent
+    @Value("${jwt.secret:your-secure-secret-key-32-chars-long-min}")
+    private String jwtSecret;
 
     @Value("${google.client-id}")
     private String googleClientId;
@@ -60,7 +65,8 @@ public class AuthController {
     @Value("${google.client-secret}")
     private String googleClientSecret;
 
-    @Value("${google.redirect-uri:}") // fallback nếu frontend không gửi
+    // fallback nếu frontend không gửi redirectUri
+    @Value("${google.redirect-uri:}")
     private String googleRedirectUri;
 
     @Autowired
@@ -90,7 +96,7 @@ public class AuthController {
                 .subject(user.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 86400000)) // 1 ngày
-                .signWith(Keys.hmacShaKeyFor(JWT_SECRET.getBytes()))
+                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
                 .compact();
 
         logger.info("Successful login for email: {}", request.getEmail());
@@ -130,12 +136,16 @@ public class AuthController {
     @PostMapping("/google-login")
     public ResponseEntity<?> handleGoogleLogin(@RequestBody CodeRequest codeRequest) {
         try {
-            logger.info("Received Google OAuth code from frontend");
-
-            String code = codeRequest.getCode();
+            logger.info("=== Google Login Start ===");
+            String code = codeRequest.getCode() != null ? codeRequest.getCode().trim() : null;
             String redirectUri = (codeRequest.getRedirectUri() != null && !codeRequest.getRedirectUri().isEmpty())
                     ? codeRequest.getRedirectUri()
                     : this.googleRedirectUri;
+
+            logger.info("Received code (present={}): {}", code != null, maskCodeForLog(code));
+            logger.info("Frontend redirectUri: {}", codeRequest.getRedirectUri());
+            logger.info("Backend default redirectUri: {}", this.googleRedirectUri);
+            logger.info("Using redirectUri for token exchange: {}", redirectUri);
 
             if (code == null || code.isEmpty()) {
                 return ResponseEntity.badRequest().body(new ErrorResponse("Missing code"));
@@ -144,8 +154,6 @@ public class AuthController {
             if (redirectUri == null || redirectUri.isEmpty()) {
                 return ResponseEntity.badRequest().body(new ErrorResponse("Missing redirectUri"));
             }
-
-            logger.debug("Exchanging code for token with redirectUri={}", redirectUri);
 
             // 1. Đổi code -> token
             String tokenEndpoint = "https://oauth2.googleapis.com/token";
@@ -159,20 +167,30 @@ public class AuthController {
             HttpRequest tokenRequest = HttpRequest.newBuilder()
                     .uri(URI.create(tokenEndpoint))
                     .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("Accept", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();
 
             HttpResponse<String> tokenResponse = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(tokenResponse.body());
+            int status = tokenResponse.statusCode();
+            String responseBody = tokenResponse.body();
 
-            if (!jsonNode.has("id_token")) {
-                logger.error("Failed to retrieve ID token from Google: {}", jsonNode);
+            logger.info("Google token endpoint returned status={}, body={}", status, responseBody);
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(responseBody);
+
+            if (status != 200 || !jsonNode.has("id_token")) {
+                // Log google error details for easier debugging
+                logger.error("Failed to retrieve ID token from Google. status={}, response={}", status, jsonNode);
+                String googleErr = jsonNode.has("error_description")
+                        ? jsonNode.get("error_description").asText()
+                        : jsonNode.has("error") ? jsonNode.get("error").asText() : "unknown";
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ErrorResponse("Failed to retrieve Google ID token"));
+                        .body(new ErrorResponse("Failed to retrieve Google ID token: " + googleErr));
             }
 
-            // 2. Verify token
+            // 2. Verify ID token
             String idToken = jsonNode.get("id_token").asText();
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     new NetHttpTransport(), JacksonFactory.getDefaultInstance())
@@ -181,7 +199,7 @@ public class AuthController {
 
             GoogleIdToken googleIdToken = verifier.verify(idToken);
             if (googleIdToken == null) {
-                logger.warn("Invalid Google ID token");
+                logger.warn("Invalid Google ID token (verifier returned null)");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new ErrorResponse("Invalid Google token"));
             }
@@ -191,6 +209,8 @@ public class AuthController {
             String email = payload.getEmail();
             String name = (String) payload.get("name");
             String pictureUrl = (String) payload.get("picture");
+
+            logger.info("Google user info: email={}, name={}, pictureUrl={}", email, name, pictureUrl);
 
             // 4. Tìm user theo email, nếu chưa có thì tạo
             User user = userRepository.findByEmail(email).orElseGet(() -> {
@@ -207,7 +227,6 @@ public class AuthController {
                 }
             });
 
-            // Nếu user có nhưng chưa có avatar → cập nhật
             if (user.getAvatar() == null && pictureUrl != null) {
                 user.setAvatar(pictureUrl);
                 userRepository.save(user);
@@ -217,11 +236,13 @@ public class AuthController {
             String jwt = Jwts.builder()
                     .subject(user.getEmail())
                     .issuedAt(new Date())
-                    .expiration(new Date(System.currentTimeMillis() + 86400000)) // 1 ngày
-                    .signWith(Keys.hmacShaKeyFor(JWT_SECRET.getBytes()))
+                    .expiration(new Date(System.currentTimeMillis() + 86400000)) // 1 day
+                    .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
                     .compact();
 
             logger.info("Generated JWT for Google login user: {}", email);
+            logger.info("=== Google Login End ===");
+
             return ResponseEntity.ok(
                     new LoginResponse(user.getId(), user.getName(), user.getEmail(), jwt, user.getAvatar())
             );
@@ -229,7 +250,7 @@ public class AuthController {
         } catch (Exception e) {
             logger.error("Error during Google login: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Google login failed"));
+                    .body(new ErrorResponse("Google login failed: " + e.getMessage()));
         }
     }
 
@@ -311,7 +332,7 @@ public class AuthController {
     @Getter @Setter
     public static class CodeRequest {
         private String code;
-        private String redirectUri; // ✅ thêm redirectUri
+        private String redirectUri; // frontend gửi redirectUri → backend dùng để exchange code->token
     }
 
     @Getter @Setter
@@ -330,5 +351,12 @@ public class AuthController {
         private String email;
         private String password;
         private String confirm;
+    }
+
+    // helper: mask code in logs a bit (optional)
+    private static String maskCodeForLog(String code) {
+        if (code == null) return null;
+        if (code.length() <= 8) return "****";
+        return code.substring(0, 4) + "****" + code.substring(code.length() - 4);
     }
 }
