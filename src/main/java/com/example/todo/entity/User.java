@@ -25,4 +25,8 @@ public class User {
     @NotBlank(message = "Password cannot be empty")
     @Column(name = "password", nullable = false)
     private String password;
+
+    // 👇 thêm cột avatar (có thể null)
+    @Column(name = "avatar")
+    private String avatar;
 }

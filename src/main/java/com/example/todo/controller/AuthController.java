@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -49,7 +50,8 @@ import java.util.regex.Pattern;
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
     private static final String JWT_SECRET = "your-secure-secret-key-32-chars-long-min";
 
     @Value("${google.client-id}")
@@ -57,6 +59,9 @@ public class AuthController {
 
     @Value("${google.client-secret}")
     private String googleClientSecret;
+
+    @Value("${google.redirect-uri:}") // fallback nếu frontend không gửi
+    private String googleRedirectUri;
 
     @Autowired
     private UserRepository userRepository;
@@ -70,26 +75,31 @@ public class AuthController {
     @Autowired
     private JavaMailSender mailSender;
 
+    /* ==================== LOGIN THƯỜNG ==================== */
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         logger.info("Login attempt for email: {}", request.getEmail());
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             logger.warn("Failed login attempt for email: {}", request.getEmail());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("Invalid email or password"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Invalid email or password"));
         }
 
         String token = Jwts.builder()
                 .subject(user.getEmail())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 86400000))
+                .expiration(new Date(System.currentTimeMillis() + 86400000)) // 1 ngày
                 .signWith(Keys.hmacShaKeyFor(JWT_SECRET.getBytes()))
                 .compact();
 
         logger.info("Successful login for email: {}", request.getEmail());
-        return ResponseEntity.ok(new LoginResponse(user.getId(), user.getName(), user.getEmail(), token));
+        return ResponseEntity.ok(
+                new LoginResponse(user.getId(), user.getName(), user.getEmail(), token, user.getAvatar())
+        );
     }
 
+    /* ==================== SIGNUP ==================== */
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignUpRequest request) {
         logger.info("Signup attempt for email: {}", request.getEmail());
@@ -110,24 +120,35 @@ public class AuthController {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setAvatar(null);
         userRepository.save(user);
 
         return ResponseEntity.ok("Signup successful");
     }
 
+    /* ==================== GOOGLE LOGIN ==================== */
     @PostMapping("/google-login")
     public ResponseEntity<?> handleGoogleLogin(@RequestBody CodeRequest codeRequest) {
         try {
             logger.info("Received Google OAuth code from frontend");
 
             String code = codeRequest.getCode();
+            String redirectUri = (codeRequest.getRedirectUri() != null && !codeRequest.getRedirectUri().isEmpty())
+                    ? codeRequest.getRedirectUri()
+                    : this.googleRedirectUri;
+
             if (code == null || code.isEmpty()) {
                 return ResponseEntity.badRequest().body(new ErrorResponse("Missing code"));
             }
 
-            String tokenEndpoint = "https://oauth2.googleapis.com/token";
-            String redirectUri = "http://localhost:5173/google-callback";
+            if (redirectUri == null || redirectUri.isEmpty()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("Missing redirectUri"));
+            }
 
+            logger.debug("Exchanging code for token with redirectUri={}", redirectUri);
+
+            // 1. Đổi code -> token
+            String tokenEndpoint = "https://oauth2.googleapis.com/token";
             String body = "code=" + URLEncoder.encode(code, StandardCharsets.UTF_8)
                     + "&client_id=" + URLEncoder.encode(googleClientId, StandardCharsets.UTF_8)
                     + "&client_secret=" + URLEncoder.encode(googleClientSecret, StandardCharsets.UTF_8)
@@ -142,17 +163,17 @@ public class AuthController {
                     .build();
 
             HttpResponse<String> tokenResponse = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
-
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(tokenResponse.body());
 
             if (!jsonNode.has("id_token")) {
                 logger.error("Failed to retrieve ID token from Google: {}", jsonNode);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("Failed to retrieve Google ID token"));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponse("Failed to retrieve Google ID token"));
             }
 
+            // 2. Verify token
             String idToken = jsonNode.get("id_token").asText();
-
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     new NetHttpTransport(), JacksonFactory.getDefaultInstance())
                     .setAudience(Collections.singletonList(googleClientId))
@@ -161,38 +182,49 @@ public class AuthController {
             GoogleIdToken googleIdToken = verifier.verify(idToken);
             if (googleIdToken == null) {
                 logger.warn("Invalid Google ID token");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("Invalid Google token"));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponse("Invalid Google token"));
             }
 
+            // 3. Lấy thông tin user từ Google
             GoogleIdToken.Payload payload = googleIdToken.getPayload();
             String email = payload.getEmail();
             String name = (String) payload.get("name");
+            String pictureUrl = (String) payload.get("picture");
 
-            User user = userRepository.findByEmail(email).orElse(null);
-
-            if (user == null) {
+            // 4. Tìm user theo email, nếu chưa có thì tạo
+            User user = userRepository.findByEmail(email).orElseGet(() -> {
+                User newUser = new User();
+                newUser.setEmail(email);
+                newUser.setName(name);
+                newUser.setPassword(passwordEncoder.encode("google-user-" + System.currentTimeMillis()));
+                newUser.setAvatar(pictureUrl);
                 try {
-                    user = new User();
-                    user.setEmail(email);
-                    user.setName(name);
-                    user.setPassword(passwordEncoder.encode("google-user-" + System.currentTimeMillis()));
-                    user = userRepository.save(user);
-                    logger.info("Created new user via Google: {}", email);
-                } catch (Exception e) {
-                    logger.warn("Duplicate insert? Retrying load: {}", e.getMessage());
-                    user = userRepository.findByEmail(email).orElseThrow();
+                    return userRepository.save(newUser);
+                } catch (DataIntegrityViolationException e) {
+                    logger.warn("Race condition: user with email {} already exists", email);
+                    return userRepository.findByEmail(email).orElseThrow();
                 }
+            });
+
+            // Nếu user có nhưng chưa có avatar → cập nhật
+            if (user.getAvatar() == null && pictureUrl != null) {
+                user.setAvatar(pictureUrl);
+                userRepository.save(user);
             }
 
+            // 5. Tạo JWT
             String jwt = Jwts.builder()
                     .subject(user.getEmail())
                     .issuedAt(new Date())
-                    .expiration(new Date(System.currentTimeMillis() + 86400000))
+                    .expiration(new Date(System.currentTimeMillis() + 86400000)) // 1 ngày
                     .signWith(Keys.hmacShaKeyFor(JWT_SECRET.getBytes()))
                     .compact();
 
             logger.info("Generated JWT for Google login user: {}", email);
-            return ResponseEntity.ok(new LoginResponse(user.getId(), user.getName(), user.getEmail(), jwt));
+            return ResponseEntity.ok(
+                    new LoginResponse(user.getId(), user.getName(), user.getEmail(), jwt, user.getAvatar())
+            );
 
         } catch (Exception e) {
             logger.error("Error during Google login: {}", e.getMessage(), e);
@@ -201,6 +233,7 @@ public class AuthController {
         }
     }
 
+    /* ==================== PASSWORD RESET + OTP ==================== */
     @PostMapping("/reset-password")
     @Transactional
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
@@ -274,9 +307,11 @@ public class AuthController {
         return ResponseEntity.ok("Password changed successfully");
     }
 
+    /* ==================== DTOs nội bộ ==================== */
     @Getter @Setter
     public static class CodeRequest {
         private String code;
+        private String redirectUri; // ✅ thêm redirectUri
     }
 
     @Getter @Setter
