@@ -55,7 +55,7 @@ public class AuthController {
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
 
-    // Prefer lấy JWT secret từ cấu hình / .env; fallback vào chuỗi ngắn if absent
+    // JWT secret
     @Value("${jwt.secret:your-secure-secret-key-32-chars-long-min}")
     private String jwtSecret;
 
@@ -64,10 +64,6 @@ public class AuthController {
 
     @Value("${google.client-secret}")
     private String googleClientSecret;
-
-    // fallback nếu frontend không gửi redirectUri
-    @Value("${google.redirect-uri:}")
-    private String googleRedirectUri;
 
     @Autowired
     private UserRepository userRepository;
@@ -138,13 +134,9 @@ public class AuthController {
         try {
             logger.info("=== Google Login Start ===");
             String code = codeRequest.getCode() != null ? codeRequest.getCode().trim() : null;
-            String redirectUri = (codeRequest.getRedirectUri() != null && !codeRequest.getRedirectUri().isEmpty())
-                    ? codeRequest.getRedirectUri()
-                    : this.googleRedirectUri;
+            String redirectUri = codeRequest.getRedirectUri();
 
             logger.info("Received code (present={}): {}", code != null, maskCodeForLog(code));
-            logger.info("Frontend redirectUri: {}", codeRequest.getRedirectUri());
-            logger.info("Backend default redirectUri: {}", this.googleRedirectUri);
             logger.info("Using redirectUri for token exchange: {}", redirectUri);
 
             if (code == null || code.isEmpty()) {
@@ -181,11 +173,10 @@ public class AuthController {
             JsonNode jsonNode = mapper.readTree(responseBody);
 
             if (status != 200 || !jsonNode.has("id_token")) {
-                // Log google error details for easier debugging
-                logger.error("Failed to retrieve ID token from Google. status={}, response={}", status, jsonNode);
                 String googleErr = jsonNode.has("error_description")
                         ? jsonNode.get("error_description").asText()
                         : jsonNode.has("error") ? jsonNode.get("error").asText() : "unknown";
+                logger.error("Failed to retrieve ID token from Google. status={}, error={}", status, googleErr);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new ErrorResponse("Failed to retrieve Google ID token: " + googleErr));
             }
@@ -332,7 +323,7 @@ public class AuthController {
     @Getter @Setter
     public static class CodeRequest {
         private String code;
-        private String redirectUri; // frontend gửi redirectUri → backend dùng để exchange code->token
+        private String redirectUri;
     }
 
     @Getter @Setter
