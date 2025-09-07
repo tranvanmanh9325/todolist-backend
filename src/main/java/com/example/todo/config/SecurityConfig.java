@@ -4,6 +4,7 @@ import com.example.todo.entity.User;
 import com.example.todo.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod; // 👈 cần import thêm
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -44,11 +45,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(authorize -> authorize
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        // ✅ Cho phép preflight requests (CORS)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // ✅ Cho phép auth endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+                        // ✅ Tạm thời mở tasks cho dev
+                        .requestMatchers("/api/tasks/**").permitAll()
+                        // Các request khác vẫn yêu cầu authenticated
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(httpBasic -> httpBasic.disable());
         return http.build();
