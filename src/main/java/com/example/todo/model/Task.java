@@ -1,6 +1,8 @@
 package com.example.todo.model;
 
+import com.example.todo.entity.User;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -32,7 +34,13 @@ public class Task {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    // Liên kết 1-1 với bảng task_details
+    // 🔹 Mỗi Task thuộc về một User
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false) // cột user_id trong bảng tasks
+    @JsonBackReference // tránh vòng lặp JSON khi serialize User -> Task -> User
+    private User user;
+
+    // 🔹 Liên kết 1-1 với bảng task_details
     @OneToOne(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference   // ✅ tránh vòng lặp JSON
     private TaskDetail taskDetail;
@@ -41,11 +49,12 @@ public class Task {
     public Task() {}
 
     // Constructor có tham số (cơ bản, không bao gồm taskDetail)
-    public Task(String title, boolean completed, String description, String type, LocalDateTime completedAt) {
+    public Task(String title, boolean completed, String description, String type, LocalDateTime completedAt, User user) {
         this.title = title;
         this.completed = completed;
         this.description = description;
         this.type = type;
         this.completedAt = completedAt;
+        this.user = user;
     }
 }
