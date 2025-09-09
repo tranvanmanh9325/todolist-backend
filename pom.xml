@@ -139,11 +139,6 @@
             <artifactId>jackson-datatype-jdk8</artifactId>
             <version>2.13.3</version>
         </dependency>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>todo-app-backend</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
     <build>
