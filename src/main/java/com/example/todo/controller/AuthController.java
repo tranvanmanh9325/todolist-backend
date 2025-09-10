@@ -112,9 +112,11 @@ public class AuthController {
             String redirectUri = codeRequest.getRedirectUri();
 
             if (code == null || code.isEmpty()) {
+                logger.warn("Google login called without code");
                 return ResponseEntity.badRequest().body(new ErrorResponse("Missing code"));
             }
             if (redirectUri == null || redirectUri.isEmpty()) {
+                logger.warn("Google login called without redirectUri");
                 return ResponseEntity.badRequest().body(new ErrorResponse("Missing redirectUri"));
             }
 
@@ -135,10 +137,14 @@ public class AuthController {
                     .build();
 
             HttpResponse<String> tokenResponse = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
+            logger.debug("Google token endpoint status: {}", tokenResponse.statusCode());
+            logger.debug("Google token response body: {}", tokenResponse.body());
+
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(tokenResponse.body());
 
             if (tokenResponse.statusCode() != 200 || !jsonNode.has("id_token")) {
+                logger.warn("Failed to retrieve Google ID token. Status: {}, body: {}", tokenResponse.statusCode(), tokenResponse.body());
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new ErrorResponse("Failed to retrieve Google ID token"));
             }
@@ -152,6 +158,7 @@ public class AuthController {
 
             GoogleIdToken googleIdToken = verifier.verify(idToken);
             if (googleIdToken == null) {
+                logger.warn("GoogleIdToken verification returned null");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new ErrorResponse("Invalid Google token"));
             }
@@ -162,33 +169,52 @@ public class AuthController {
             String name = (String) payload.get("name");
             String pictureUrl = (String) payload.get("picture");
 
-            // 4. Lưu user nếu chưa có
-            User user = userRepository.findByEmail(email).orElseGet(() -> {
+            logger.info("Google login payload: email={}, name={}, pictureUrl={}", email, name, pictureUrl);
+
+            // 4. Lấy user từ DB nếu có
+            Optional<User> optUser = userRepository.findByEmail(email);
+            User user;
+            if (optUser.isPresent()) {
+                user = optUser.get();
+                logger.info("Found existing user in DB: id={}, avatar={}", user.getId(), user.getAvatar());
+                // Nếu DB chưa có avatar thì gán pictureUrl (chỉ khi khác null)
+                if ((user.getAvatar() == null || user.getAvatar().isBlank()) && pictureUrl != null && !pictureUrl.isBlank()) {
+                    logger.info("Updating user.avatar for user id={} with pictureUrl", user.getId());
+                    user.setAvatar(pictureUrl);
+                    try {
+                        userRepository.save(user);
+                        logger.info("Updated user avatar saved for id={}", user.getId());
+                    } catch (Exception e) {
+                        logger.error("Failed to save updated avatar for user id={}: {}", user.getId(), e.getMessage(), e);
+                    }
+                }
+            } else {
+                // Tạo mới user
                 User newUser = new User();
                 newUser.setEmail(email);
-                newUser.setName(name);
+                newUser.setName(name != null ? name : email);
                 newUser.setPassword(passwordEncoder.encode("google-user-" + System.currentTimeMillis()));
-                newUser.setAvatar(pictureUrl);
+                newUser.setAvatar(pictureUrl); // có thể null
                 try {
-                    return userRepository.save(newUser);
+                    user = userRepository.save(newUser);
+                    logger.info("Created new user id={} email={} avatar={}", user.getId(), user.getEmail(), user.getAvatar());
                 } catch (Exception e) {
-                    return userRepository.findByEmail(email).orElseThrow();
+                    logger.error("Error saving new user for google login: {}", e.getMessage(), e);
+                    // Nếu save lỗi do race condition -> lấy lại từ DB
+                    user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Failed to create or retrieve user after exception"));
                 }
-            });
-
-            if (user.getAvatar() == null && pictureUrl != null) {
-                user.setAvatar(pictureUrl);
-                userRepository.save(user);
             }
 
             // 5. Tạo JWT bằng JwtService
             String jwt = jwtService.generateToken(user.getEmail());
+            logger.info("Google login success for email={}, returning jwt and user id={}", user.getEmail(), user.getId());
 
             return ResponseEntity.ok(
                     new LoginResponse(user.getId(), user.getName(), user.getEmail(), jwt, user.getAvatar())
             );
 
         } catch (Exception e) {
+            logger.error("Google login failed: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Google login failed: " + e.getMessage()));
         }
