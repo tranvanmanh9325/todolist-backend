@@ -293,6 +293,44 @@ public class AuthController {
         return ResponseEntity.ok("Password changed successfully");
     }
 
+    /* ==================== AVATAR PROXY ==================== */
+    @GetMapping("/avatar/{userId}")
+    public ResponseEntity<byte[]> getAvatar(@PathVariable Long userId) {
+        try {
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            User user = userOpt.get();
+            if (user.getAvatar() == null || user.getAvatar().isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Download avatar từ Google
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(user.getAvatar()))
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                    .build();
+            
+            HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+            
+            if (response.statusCode() == 200) {
+                return ResponseEntity.ok()
+                        .header("Content-Type", "image/jpeg")
+                        .header("Cache-Control", "public, max-age=3600")
+                        .body(response.body());
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+            
+        } catch (Exception e) {
+            logger.error("Error fetching avatar for user {}: {}", userId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     /* ==================== DTOs ==================== */
     @Getter @Setter
     public static class CodeRequest {
